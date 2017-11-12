@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"git.corp.yahoo.co.jp/ysawada/tic-tac/matrix"
+	"github.com/yuichi10/matrix"
 )
 
 const (
@@ -48,8 +48,16 @@ func NewNeural() *Neural {
 	}
 	neural.theta1File = "theta1.txt"
 	neural.theta2File = "theta2.txt"
-	neural.Theta1 = matrix.NewMatrix(0, 0)
-	neural.Theta2 = matrix.NewMatrix(0, 0)
+	neural.Theta1, err = matrix.NewMatrix(1, 10, nil)
+	if err != nil {
+		log.Fatal("failed to create matrix")
+		os.Exit(1)
+	}
+	neural.Theta2, err = matrix.NewMatrix(1, 16, nil)
+	if err != nil {
+		log.Fatal("failed to create matrix")
+		os.Exit(1)
+	}
 	return neural
 }
 
@@ -75,10 +83,19 @@ func (n *Neural) LoadTheta() {
 	}
 	defer fp.Close()
 	scanner := bufio.NewScanner(fp)
+	firstTime := true
 	for scanner.Scan() {
 		text := scanner.Text()
 		nums := n.lineToFloatArray(text)
-		n.Theta1.AddRow(nums)
+		if firstTime {
+			n.Theta1, err = matrix.NewVector(nums)
+			n.Theta1.Transpose()
+			if err != nil {
+				log.Fatal("failed to create matrix")
+			}
+			firstTime = false
+		}
+		err = n.Theta1.AddRow(nums)
 	}
 
 	fp2, err := os.Open(n.configFile + "/" + n.theta2File)
@@ -87,9 +104,18 @@ func (n *Neural) LoadTheta() {
 		os.Exit(1)
 	}
 	defer fp2.Close()
-	scanner2 := bufio.NewScanner(fp)
+	scanner2 := bufio.NewScanner(fp2)
+	firstTime = true
 	for scanner2.Scan() {
 		nums := n.lineToFloatArray(scanner2.Text())
+		if firstTime {
+			n.Theta2, err = matrix.NewVector(nums)
+			n.Theta2.Transpose()
+			if err != nil {
+				log.Fatal("failed to create matrix")
+			}
+			firstTime = false
+		}
 		n.Theta2.AddRow(nums)
 	}
 }

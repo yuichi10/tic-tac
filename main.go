@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/yuichi10/tic-tac/ml"
+	"github.com/yuichi10/tic-tac/computer"
 )
 
 func main() {
@@ -10,7 +10,9 @@ func main() {
 	// flag.Parse()
 
 	// putMatrix.Show()
-	neural := ml.NewNeural()
+	neural := computer.NewNeural()
 	neural.LoadTheta()
+	neural.Theta1.Show()
+	neural.Theta2.Show()
 	// neural.Theta1.Size()
 }

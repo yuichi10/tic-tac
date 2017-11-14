@@ -1,4 +1,4 @@
-package ml
+package computer
 
 import (
 	"bufio"
@@ -48,12 +48,12 @@ func NewNeural() *Neural {
 	}
 	neural.theta1File = "theta1.txt"
 	neural.theta2File = "theta2.txt"
-	neural.Theta1, err = matrix.NewMatrix(1, 10, nil)
+	neural.Theta1, err = matrix.New(1, 10, nil)
 	if err != nil {
 		log.Fatal("failed to create matrix")
 		os.Exit(1)
 	}
-	neural.Theta2, err = matrix.NewMatrix(1, 16, nil)
+	neural.Theta2, err = matrix.New(1, 16, nil)
 	if err != nil {
 		log.Fatal("failed to create matrix")
 		os.Exit(1)
@@ -89,13 +89,13 @@ func (n *Neural) LoadTheta() {
 		nums := n.lineToFloatArray(text)
 		if firstTime {
 			n.Theta1, err = matrix.NewVector(nums)
-			n.Theta1.Transpose()
+			n.Theta1 = n.Theta1.Transpose()
 			if err != nil {
 				log.Fatal("failed to create matrix")
 			}
 			firstTime = false
 		}
-		err = n.Theta1.AddRow(nums)
+		n.Theta1, err = n.Theta1.AddRow(nums)
 	}
 
 	fp2, err := os.Open(n.configFile + "/" + n.theta2File)
@@ -110,20 +110,21 @@ func (n *Neural) LoadTheta() {
 		nums := n.lineToFloatArray(scanner2.Text())
 		if firstTime {
 			n.Theta2, err = matrix.NewVector(nums)
-			n.Theta2.Transpose()
+			n.Theta2 = n.Theta2.Transpose()
 			if err != nil {
 				log.Fatal("failed to create matrix")
 			}
 			firstTime = false
 		}
-		n.Theta2.AddRow(nums)
+		n.Theta2, err = n.Theta2.AddRow(nums)
 	}
 }
 
-func calcMatrixMulti(m1 []int, m2 []int) {
-
-}
-
-func (n *Neural) CalculateValue(board, put matrix.Matrix) {
-	// バイアスの追加
+func (n *Neural) forwardPropagation(board *matrix.Matrix) {
+	a1 := board.Vector()
+	a1, err := a1.AddRowHEAD(1)
+	if err != nil {
+		log.Fatal("failed to add baias: %v", err)
+		os.Exit(1)
+	}
 }

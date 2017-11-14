@@ -94,8 +94,9 @@ func (n *Neural) LoadTheta() {
 				log.Fatal("failed to create matrix")
 			}
 			firstTime = false
+		} else {
+			n.Theta1, err = n.Theta1.AddRow(nums)
 		}
-		n.Theta1, err = n.Theta1.AddRow(nums)
 	}
 
 	fp2, err := os.Open(n.configFile + "/" + n.theta2File)
@@ -115,16 +116,27 @@ func (n *Neural) LoadTheta() {
 				log.Fatal("failed to create matrix")
 			}
 			firstTime = false
+		} else {
+			n.Theta2, err = n.Theta2.AddRow(nums)
 		}
-		n.Theta2, err = n.Theta2.AddRow(nums)
 	}
 }
 
-func (n *Neural) forwardPropagation(board *matrix.Matrix) {
+func (n *Neural) forwardPropagation(board *matrix.Matrix) *matrix.Matrix {
 	a1 := board.Vector()
 	a1, err := a1.AddRowHEAD(1)
 	if err != nil {
 		log.Fatal("failed to add baias: %v", err)
 		os.Exit(1)
 	}
+	z2 := n.Theta1.Multi(a1)
+	a2 := z2.Sigmoid()
+	a2, err = a2.AddRowHEAD(1)
+	z3 := n.Theta2.Multi(a2)
+	a3 := z3.Sigmoid()
+	if a3.CalcErr() != nil {
+		fmt.Println(a3.CalcErr())
+		os.Exit(1)
+	}
+	return a3
 }
